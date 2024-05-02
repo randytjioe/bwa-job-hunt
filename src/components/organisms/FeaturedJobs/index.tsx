@@ -1,25 +1,22 @@
+"use client";
 import TitleSection from "@/components/atoms/TitleSection";
-import { FC } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import JobItem from "./JobItem";
+import useSWR from "swr";
+import { fetcher, parsingJobs } from "@/lib/utils";
+import { JobType } from "@/types";
+import useFeaturedJobs from "@/hooks/useFeaturedJobs";
 
 interface FeaturedJobsProps {}
 
 const FeaturedJobs: FC<FeaturedJobsProps> = ({}) => {
+  const { jobs, isLoading, error } = useFeaturedJobs();
   return (
     <div className="mt-32 mb-10">
       <TitleSection word1="Featured" word2="Jobs" />
       <div className="grid grid-cols-4 gap-8 mt-12">
-        {[1, 2, 3, 4, 5].map((item: number) => (
-          <JobItem
-            key={item}
-            image="/images/company.png"
-            jobType="Full Time"
-            name="Email Marketing"
-            type="Agency"
-            location="Lagos, Nigeria"
-            desc="We are looking for an Email Marketing Expert to join our team"
-            categories={["Marketing", "Social Media"]}
-          />
+        {jobs.map((item: JobType) => (
+          <JobItem key={item.id} {...item} />
         ))}
       </div>
     </div>

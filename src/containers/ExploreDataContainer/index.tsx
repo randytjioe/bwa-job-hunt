@@ -78,18 +78,7 @@ const ExploreDataContainer: FC<ExploreDataContainerProps> = ({
                 {type === "job" ? (
                   <div className="grid grid-cols-1 gap-7">
                     {data.map((item: any, i: number) => (
-                      <JobCard
-                        key={i}
-                        applications={5}
-                        categories={["Engineering"]}
-                        desc="lorem"
-                        image="/images/company2.png"
-                        jobType="Full Time"
-                        location="Remote"
-                        name="Software Engineer"
-                        needs={15}
-                        type="Part Time"
-                      />
+                      <JobCard key={i} {...item} />
                     ))}
                   </div>
                 ) : (

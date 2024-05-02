@@ -12,7 +12,8 @@ const JobItem: FC<JobItemProps> = ({
   name,
   type,
   location,
-  categories,
+  category,
+  skills,
 }) => {
   return (
     <div className="flex flex-row items-start gap-6 p-8 border cursor-pointer border-border">
@@ -27,11 +28,11 @@ const JobItem: FC<JobItemProps> = ({
         <div className="inline-flex items-center h-5 gap-2">
           <Badge variant="secondary">{jobType}</Badge>
           <Separator orientation="vertical" />
-          {categories.map((item: string, i: number) => (
+          {skills.map((item: string, i: number) => (
             <Badge
+              key={item + i}
               variant="outline"
-              className="rounded text-primary border-primary bg-primary/5"
-              key={i}
+              className="rounded border-primary bg-primary/5 text-primary"
             >
               {item}
             </Badge>

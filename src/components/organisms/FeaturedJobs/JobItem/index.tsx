@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { JobType } from "@/types";
+import { JobType, categoryJobType } from "@/types";
 import Image from "next/image";
 import { FC } from "react";
 
@@ -12,7 +12,8 @@ const JobItem: FC<JobItemProps> = ({
   type,
   location,
   desc,
-  categories,
+  category,
+  skills,
 }) => {
   return (
     <div className="p-6 border cursor-pointer border-border">
@@ -27,13 +28,20 @@ const JobItem: FC<JobItemProps> = ({
         <div className="mb-3 text-muted-foreground">
           {type} . {location}
         </div>
-        <div className="h-12 line-clamp-2 text-ellipsis text-muted-foreground">
-          {desc}
-        </div>
+        <div
+          className="h-12 line-clamp-2 text-ellipsis text-muted-foreground"
+          dangerouslySetInnerHTML={{ __html: desc }}
+        ></div>
       </div>
       <div className="space-x-2">
-        {categories.map((item: string, i: number) => (
-          <Badge key={i}>{item}</Badge>
+        {skills.map((item: string, i: number) => (
+          <Badge
+            key={item + i}
+            variant="outline"
+            className="rounded border-primary bg-primary/5 text-primary"
+          >
+            {item}
+          </Badge>
         ))}
       </div>
     </div>

@@ -1,13 +1,15 @@
 export type JobType = {
+  id: string;
   image: string;
   jobType: string;
   name: string;
   type: string;
   location: string;
   desc: string;
-  categories: string[];
+  category: categoryJobType;
   needs: number;
   applications: number;
+  skills: string[];
 };
 
 export type optionType = {
@@ -21,10 +23,45 @@ export type filterFormType = {
   items: optionType[];
 };
 
-export type CompanyType = {
+export type CompanyTeamType = {
+  id: string;
   name: string;
+  position: string;
+  instagram: string;
+  linkedin: string;
+};
+
+export type CompanySocmedType = {
+  id: string;
+  instagram: string;
+  twitter: string;
+  facebook: string;
+  linkedin: string;
+  youtube: string;
+};
+export type CompanyType = {
+  id: string;
   image: string;
-  description: string;
+  name: string;
   totalJobs: number;
-  categories: string;
+  description: string;
+  website: string;
+  employee: string;
+  location: string;
+  industry: string;
+  dateFounded: string;
+  techStack: string[];
+  socmed: CompanySocmedType;
+  teams: CompanyTeamType[];
+};
+
+export type categoryJobType = {
+  id: string;
+  name: string;
+  totalJobs: number;
+};
+export type companyJobType = {
+  id: string;
+  name: string;
+  totalJobs: number;
 };

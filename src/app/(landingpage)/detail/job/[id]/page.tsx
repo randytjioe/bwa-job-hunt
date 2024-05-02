@@ -6,10 +6,72 @@ import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import Link from "next/link";
 import { BiCategory } from "react-icons/bi";
+import prisma from "../../../../../../lib/prisma";
+import { FC } from "react";
+import { supabasePublicUrl } from "@/lib/supabase";
+import { dateFormat } from "@/lib/utils";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 interface DetailJobPageProps {}
 
-const DetailJobPage: FC<DetailJobPageProps> = ({}) => {
+async function getJobDetail(id: string) {
+  const session = await getServerSession(authOptions);
+
+  const data = await prisma.job.findFirst({
+    where: {
+      id,
+    },
+    include: {
+      Company: {
+        include: {
+          CompanyOverview: true,
+        },
+      },
+      CategoryJob: true,
+    },
+  });
+
+  let imageUrl;
+
+  if (data?.Company?.CompanyOverview[0].image) {
+    imageUrl = await supabasePublicUrl(
+      data?.Company?.CompanyOverview[0].image,
+      "company"
+    );
+  } else {
+    imageUrl = "/images/company2.png";
+  }
+  const applicants = data?.applicants || 0;
+  const needs = data?.needs || 0;
+  const isApply = await prisma.applicant.count({
+    where: {
+      userId: session?.user?.id,
+    },
+  });
+  if (!session) {
+    return {
+      ...data,
+      image: imageUrl,
+      benefits: data?.benefits,
+      applicants,
+      needs,
+      isApply: 0,
+    };
+  }
+  return {
+    ...data,
+    image: imageUrl,
+    benefits: data?.benefits,
+    applicants,
+    needs,
+    isApply,
+  };
+}
+
+const DetailJobPage = async ({ params }: { params: { id: string } }) => {
+  const data = await getJobDetail(params.id);
+  const session = await getServerSession(authOptions);
   return (
     <>
       <div className="px-32 pt-10 bg-slate-100 pb-14">
@@ -27,75 +89,81 @@ const DetailJobPage: FC<DetailJobPageProps> = ({}) => {
           /
           <Link
             className="hover:underline hover:text-black"
-            href="/detail/company/1"
+            href={`/detail/company/${data?.Company?.CompanyOverview[0].id}`}
           >
-            Twitter
+            {data?.Company?.CompanyOverview[0].name}
           </Link>{" "}
           /
           <Link
             className="hover:underline hover:text-black"
-            href="/detail/job/1"
+            href={`/detail/job/${data?.id}`}
           >
-            Social Media Assistant
+            {data?.roles}
           </Link>
         </div>
         <div className="flex flex-row items-center justify-between w-11/12 p-5 mx-auto mt-10 bg-white shadow ">
           <div>
-            <Image
-              src="/images/company2.png"
-              alt="/images/company2.png"
-              width={88}
-              height={88}
-            />
+            <Image src={data.image} alt={data.image} width={88} height={88} />
             <div>
-              <div className="text-2xl font-semibold">
-                Soacial Media Assistant
-              </div>
+              <div className="text-2xl font-semibold">{data?.roles}</div>
               <div className="text-muted-foreground">
-                Agency . Paris, France . Full-Time
+                {data?.Company?.CompanyOverview[0].location} . {data?.jobType}
               </div>
             </div>
           </div>
-          <FormModalApply />
+          {session ? (
+            <>
+              {data.isApply === 1 ? (
+                <Button disabled className="px-12 py-6 text-lg bg-green-500">
+                  Applied
+                </Button>
+              ) : (
+                <FormModalApply
+                  image={data.image}
+                  roles={data.roles!!}
+                  jobType={data.jobType!!}
+                  location={data?.Company?.CompanyOverview[0].location!!}
+                  id={data.id}
+                  isApply={data.isApply}
+                />
+              )}
+            </>
+          ) : (
+            <Button variant="outline" disabled>
+              Sign in First
+            </Button>
+          )}
         </div>
       </div>
       <div className="flex flex-row items-start gap-10 px-32 py-16">
         <div className="w-3/4">
           <div className="mb-16">
             <div className="text-4xl font-semibold">Description</div>
-            <div className="text-muted-foreground">
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              </p>
-            </div>
+            <div
+              className="text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: data?.description!! }}
+            ></div>
           </div>
           <div className="mb-16">
             <div className="text-4xl font-semibold">Responsibilities</div>
-            <div className="text-muted-foreground">
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              </p>
-            </div>
+            <div
+              className="text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: data?.responsibility!! }}
+            ></div>
           </div>
           <div className="mb-16">
             <div className="text-4xl font-semibold">Who You Are</div>
-            <div className="text-muted-foreground">
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              </p>
-            </div>
+            <div
+              className="text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: data?.whoYouAre!! }}
+            ></div>
           </div>
           <div className="mb-16">
             <div className="text-4xl font-semibold">Nica-To-Haves</div>
-            <div className="text-muted-foreground">
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              </p>
-            </div>
+            <div
+              className="text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: data?.niceToHaves!! }}
+            ></div>
           </div>
         </div>
         <div className="w-1/4">
@@ -103,27 +171,40 @@ const DetailJobPage: FC<DetailJobPageProps> = ({}) => {
             <div className="text-3xl font-semibold">About this Role</div>
             <div className="p-4 mt-6 bg-slate-50">
               <div className="mb-2">
-                <span className="font-semibold">5 Applied</span>
-                <span className="text-gray-600"> of 10 capacity</span>
+                <span className="font-semibold">
+                  {data?.applicants} Applied
+                </span>
+                <span className="text-gray-600">
+                  {" "}
+                  of {data?.needs} capacity
+                </span>
               </div>
-              <Progress value={50} />
+              <Progress
+                value={(data?.applicants || 0 / data?.needs || 0) * 100}
+              />
             </div>
             <div className="mt-6 space-y-4">
               <div className="flex flex-row justify-between">
                 <div className="text-gray-500">Apply Before</div>
-                <div className="font-semibold">Juli 31, 2013</div>
+                <div className="font-semibold">
+                  {dateFormat(data.dueDate!!)}
+                </div>
               </div>
               <div className="flex flex-row justify-between">
                 <div className="text-gray-500">Job Posted On</div>
-                <div className="font-semibold">Juli 31, 2013</div>
+                <div className="font-semibold">
+                  {dateFormat(data.datePosted!!)}
+                </div>
               </div>
               <div className="flex flex-row justify-between">
                 <div className="text-gray-500">Job Type</div>
-                <div className="font-semibold">Full Time</div>
+                <div className="font-semibold">{data?.jobType}</div>
               </div>
               <div className="flex flex-row justify-between">
                 <div className="text-gray-500">Salary</div>
-                <div className="font-semibold">$75k-$85k USD</div>
+                <div className="font-semibold">
+                  ${data?.salaryFrom}-${data?.salaryTo} USD
+                </div>
               </div>
             </div>
           </div>
@@ -131,16 +212,16 @@ const DetailJobPage: FC<DetailJobPageProps> = ({}) => {
           <div>
             <div className="text-3xl font-semibold">Categories</div>
             <div className="inline-flex gap-4 my-10">
-              <Badge>Marketing</Badge>
+              <Badge>{data?.CategoryJob?.name}</Badge>
             </div>
           </div>
           <Separator className="my-10" />
           <div>
             <div className="text-3xl font-semibold">Required Skills</div>
             <div className="inline-flex gap-4 my-10">
-              {[0, 1].map((item: number) => (
-                <Badge key={item} variant="outline">
-                  Marketing
+              {data?.requiredSkills?.map((item: any, i: number) => (
+                <Badge key={item + i} variant="outline">
+                  {item}
                 </Badge>
               ))}
             </div>
@@ -156,12 +237,12 @@ const DetailJobPage: FC<DetailJobPageProps> = ({}) => {
           </div>
         </div>
         <div className="grid grid-cols-5 gap-5">
-          {[0, 1, 2, 3, 4].map((item: number) => (
-            <div key={item}>
+          {data?.benefits?.map((item: any, i: number) => (
+            <div key={i}>
               <BiCategory className="w-12 h-12 text-primary" />
-              <div className="mt-6 text-xl font-semibold">Full Healthcare</div>
+              <div className="mt-6 text-xl font-semibold">{item.benefit}</div>
               <div className="mt-3 text-sm text-gray-500">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit
+                {item.description}
               </div>
             </div>
           ))}

@@ -11,12 +11,13 @@ const CompanyCard: FC<CompanyCardProps> = ({
   name,
   description,
   totalJobs,
-  categories,
+  industry,
+  id,
 }) => {
   const router = useRouter();
   return (
     <div
-      onClick={() => router.push("/detail/company/1")}
+      onClick={() => router.push("/detail/company/" + id)}
       className="p-6 border cursor-pointer border-border"
     >
       <div className="flex flex-row items-start justify-between ">
@@ -25,12 +26,13 @@ const CompanyCard: FC<CompanyCardProps> = ({
       </div>
       <div className="my-4">
         <div className="mb-2 text-lg font-semibold">{name}</div>
-        <div className="text-sm text-muted-foreground line-clamp-3">
-          {description}
-        </div>
+        <div
+          className="text-sm text-muted-foreground line-clamp-3"
+          dangerouslySetInnerHTML={{ __html: description }}
+        ></div>
       </div>
       <div className="space-x-2">
-        <Badge variant="outline">{categories}</Badge>
+        <Badge variant="outline">{industry}</Badge>
       </div>
     </div>
   );
