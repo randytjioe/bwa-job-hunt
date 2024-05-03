@@ -8,7 +8,7 @@ import { FC } from "react";
 
 interface ExploreDataContainerProps {
   formFilter?: any;
-  onSubmitFilter?: (val: any) => Promise<void>;
+  onSubmitFilter: (val: any) => Promise<void>;
   filterForms: filterFormType[];
   loading: boolean;
   title: string;

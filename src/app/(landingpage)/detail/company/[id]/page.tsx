@@ -58,7 +58,7 @@ const DetailCompanyPage: FC<DetailCompanyPageProps> = async ({ params }) => {
   const data = await getDetailCompany(params.id);
   return (
     <>
-      {data && (
+      {data && data.CompanyOverview && (
         <>
           <div className="px-32 pt-16 bg-slate-100 pb-14">
             <div className="inline-flex gap-3 text-sm text-muted-foreground">
@@ -94,7 +94,7 @@ const DetailCompanyPage: FC<DetailCompanyPageProps> = async ({ params }) => {
                       {" "}
                       {data?.CompanyOverview[0]?.name}
                     </span>
-                    <Badge>{data?._count.Job} Jobs</Badge>
+                    <Badge>{data._count?.Job} Jobs</Badge>
                   </div>
                   <div className="mt-2">
                     <Link href="/" className="font-semibold text-primary">
@@ -173,27 +173,31 @@ const DetailCompanyPage: FC<DetailCompanyPageProps> = async ({ params }) => {
                   }}
                 ></div>
               </div>
-              <div className="mb-4 text-3xl font-semibold">Contact</div>
-              <div className="flex items-center gap-5 w-[400px] flex-wrap">
-                <div className="inline-flex items-center gap-3 p-2 font-semibold border border-primary text-primary w-max">
-                  <FacebookIcon />
-                  <span className="text-sm">
-                    {data.CompanySocialMedia[0]?.facebook}
-                  </span>
+              {data.CompanySocialMedia && (
+                <div>
+                  <div className="mb-4 text-3xl font-semibold">Contact</div>
+                  <div className="flex items-center gap-5 w-[400px] flex-wrap">
+                    <div className="inline-flex items-center gap-3 p-2 font-semibold border border-primary text-primary w-max">
+                      <FacebookIcon />
+                      <span className="text-sm">
+                        {data.CompanySocialMedia[0]?.facebook}
+                      </span>
+                    </div>
+                    <div className="inline-flex items-center gap-3 p-2 font-semibold border border-primary text-primary w-max">
+                      <TwitterIcon />
+                      <span className="text-sm">
+                        {data.CompanySocialMedia[0]?.twitter}
+                      </span>
+                    </div>
+                    <div className="inline-flex items-center gap-3 p-2 font-semibold border border-primary text-primary w-max">
+                      <LinkedinIcon />
+                      <span className="text-sm">
+                        {data.CompanySocialMedia[0]?.linkedin}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="inline-flex items-center gap-3 p-2 font-semibold border border-primary text-primary w-max">
-                  <TwitterIcon />
-                  <span className="text-sm">
-                    {data.CompanySocialMedia[0]?.twitter}
-                  </span>
-                </div>
-                <div className="inline-flex items-center gap-3 p-2 font-semibold border border-primary text-primary w-max">
-                  <LinkedinIcon />
-                  <span className="text-sm">
-                    {data.CompanySocialMedia[0]?.linkedin}
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
             <div className="w-1/4">
               <div className="mb-4 text-3xl font-semibold">Tech Stack</div>
@@ -209,32 +213,37 @@ const DetailCompanyPage: FC<DetailCompanyPageProps> = async ({ params }) => {
               </div>
             </div>
           </div>
-          <div className="px-32">
-            <Separator />
-            <div className="my-16">
-              <div className="mb-4 text-3xl font-semibold">Teams</div>
-              <div className="grid grid-cols-5 gap-5 mt-5">
-                {data.CompanyTeam.map((data: CompanyTeam) => (
-                  <div key={data.id} className="px-3 py-5 border border-border">
-                    <div className="w-16 h-16 mx-auto bg-gray-300 rounded-full " />
-                    <div className="my-4 text-center">
-                      <div className="text-sm font-semibold">{data.name}</div>
-                      <div className="text-xs text-gray-500">
-                        {data.position}
+          {data.CompanyTeam && (
+            <div className="px-32">
+              <Separator />
+              <div className="my-16">
+                <div className="mb-4 text-3xl font-semibold">Teams</div>
+                <div className="grid grid-cols-5 gap-5 mt-5">
+                  {data.CompanyTeam.map((data: CompanyTeam) => (
+                    <div
+                      key={data.id}
+                      className="px-3 py-5 border border-border"
+                    >
+                      <div className="w-16 h-16 mx-auto bg-gray-300 rounded-full " />
+                      <div className="my-4 text-center">
+                        <div className="text-sm font-semibold">{data.name}</div>
+                        <div className="text-xs text-gray-500">
+                          {data.position}
+                        </div>
+                      </div>
+                      <div className="mx-auto w-max">
+                        <div className="inline-flex gap-2">
+                          <InstagramIcon className="w-4 h-4 text-gray-500" />
+                          <LinkedinIcon className="w-4 h-4 text-gray-500" />
+                        </div>
                       </div>
                     </div>
-                    <div className="mx-auto w-max">
-                      <div className="inline-flex gap-2">
-                        <InstagramIcon className="w-4 h-4 text-gray-500" />
-                        <LinkedinIcon className="w-4 h-4 text-gray-500" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
+              <Separator />
             </div>
-            <Separator />
-          </div>
+          )}
         </>
       )}
       <div className="px-32">

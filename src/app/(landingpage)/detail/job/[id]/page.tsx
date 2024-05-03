@@ -11,7 +11,8 @@ import { FC } from "react";
 import { supabasePublicUrl } from "@/lib/supabase";
 import { dateFormat } from "@/lib/utils";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
+
 
 interface DetailJobPageProps {}
 
@@ -49,11 +50,13 @@ async function getJobDetail(id: string) {
       userId: session?.user?.id,
     },
   });
+  const benefits: any = data?.benefits;
+
   if (!session) {
     return {
       ...data,
       image: imageUrl,
-      benefits: data?.benefits,
+      benefits,
       applicants,
       needs,
       isApply: 0,
@@ -62,7 +65,7 @@ async function getJobDetail(id: string) {
   return {
     ...data,
     image: imageUrl,
-    benefits: data?.benefits,
+    benefits,
     applicants,
     needs,
     isApply,
